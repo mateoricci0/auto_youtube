@@ -20,7 +20,7 @@
       "category_id": "28",
       "schedule": {
         "days_of_week": "mon,wed,fri",
-        "hour": 14,
+        "hour": 15,
         "minute": 0
       },
       "video": {
@@ -28,7 +28,8 @@
         "privacy": "private",
         "made_for_kids": false,
         "license": "youtube",
-        "default_language": "es"
+        "default_language": "es",
+        "generate_shorts": true
       },
       "youtube_client_secrets": "config/youtube_client_secrets_techhoy.json",
       "youtube_tokens": "config/youtube_tokens_techhoy.json"

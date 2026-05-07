@@ -4,6 +4,7 @@ DeepSeek uses the OpenAI-compatible API format.
 """
 import json
 import os
+import random
 import re
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -118,12 +119,17 @@ def generate_script(topic: str, channel_config: Dict) -> Dict:
     niche_keywords = ", ".join(channel_config.get("niche_keywords", []))
     target_minutes = channel_config.get("video", {}).get("target_duration_minutes", 8)
 
+    # Alternate between "noticia" and "lista" formats for content variety
+    content_format = random.choice(["noticia", "lista"])
+    logger.info("Using content format: %s", content_format)
+
     prompt_template = _load_prompt(language)
     prompt = prompt_template.format(
         topic=topic,
         niche=niche,
         niche_keywords=niche_keywords,
         target_duration_minutes=target_minutes,
+        format=content_format,
     )
 
     logger.info("Generating script with %s for topic: %s", model, topic[:80])
@@ -163,6 +169,10 @@ def _validate_script(script: Dict) -> None:
     for field in required:
         if field not in script:
             raise ValueError(f"Script missing required field: {field}")
+    # shorts_hook is optional — add a fallback if missing
+    if "shorts_hook" not in script:
+        first_narration = script["chapters"][0].get("narration", "")
+        script["shorts_hook"] = first_narration[:500]
 
     if not script["chapters"]:
         raise ValueError("Script has no chapters.")
