@@ -1,0 +1,27 @@
+{
+  "channels": [
+    {
+      "id": "channel_main",
+      "name": "Mi Canal Principal",
+      "language": "es",
+      "niche": "technology",
+      "niche_keywords": ["inteligencia artificial", "tecnología", "IA", "gadgets", "innovación"],
+      "region": "ES",
+      "category_id": "28",
+      "schedule": {
+        "days_of_week": "mon,wed,fri",
+        "hour": 14,
+        "minute": 0
+      },
+      "video": {
+        "target_duration_minutes": 8,
+        "privacy": "public",
+        "made_for_kids": false,
+        "license": "youtube",
+        "default_language": "es"
+      },
+      "youtube_client_secrets": "config/youtube_client_secrets_channel_main.json",
+      "youtube_tokens": "config/youtube_tokens_channel_main.json"
+    }
+  ]
+}

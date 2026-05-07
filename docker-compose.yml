@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  auto-youtube:
+    build: .
+    container_name: auto_youtube
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Persist output videos and logs
+      - ./output:/app/output
+      - ./logs:/app/logs
+      # Mount config so you can update channels.json without rebuilding
+      - ./config:/app/config
+    environment:
+      - PYTHONUNBUFFERED=1
