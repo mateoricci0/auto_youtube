@@ -13,7 +13,7 @@ INSTRUCCIONES CRÍTICAS:
 4. El tono debe ser conversacional, como si hablaras con un amigo inteligente.
 5. Evita frases genéricas de relleno. Cada oración debe aportar valor.
 6. Incluye al menos 2 datos o estadísticas concretas y verificables.
-7. El CTA al final debe pedir suscripción y comentario con una pregunta específica.
+7. El CTA al final debe pedir suscripción a TechHoy y un comentario con una pregunta específica.
 8. Las timestamps deben ser realistas basadas en el texto (calcula ~150 palabras por minuto).
 
 RESPONDE ÚNICAMENTE con JSON válido. Sin texto fuera del JSON. Sin markdown. Sin explicaciones.

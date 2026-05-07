@@ -1,11 +1,21 @@
 {
   "channels": [
     {
-      "id": "channel_main",
-      "name": "Mi Canal Principal",
+      "id": "techhoy",
+      "name": "TechHoy",
       "language": "es",
       "niche": "technology",
-      "niche_keywords": ["inteligencia artificial", "tecnología", "IA", "gadgets", "innovación"],
+      "niche_keywords": [
+        "inteligencia artificial",
+        "tecnología",
+        "IA",
+        "gadgets",
+        "innovación",
+        "noticias tech",
+        "aplicaciones",
+        "smartphone",
+        "software"
+      ],
       "region": "ES",
       "category_id": "28",
       "schedule": {
@@ -15,13 +25,13 @@
       },
       "video": {
         "target_duration_minutes": 8,
-        "privacy": "public",
+        "privacy": "private",
         "made_for_kids": false,
         "license": "youtube",
         "default_language": "es"
       },
-      "youtube_client_secrets": "config/youtube_client_secrets_channel_main.json",
-      "youtube_tokens": "config/youtube_tokens_channel_main.json"
+      "youtube_client_secrets": "config/youtube_client_secrets_techhoy.json",
+      "youtube_tokens": "config/youtube_tokens_techhoy.json"
     }
   ]
 }
