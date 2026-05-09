@@ -1,11 +1,13 @@
 """
-Text-to-Speech engine with three provider options:
-  - gtts   (default): Google Translate TTS — completely FREE, no API key, no billing
-  - google            : Google Cloud TTS Neural2 — free up to 1M chars/month (needs billing account)
-  - openai            : OpenAI TTS-1 — ~$15/1M chars (needs OpenAI account)
+Text-to-Speech engine — provider options:
+  - edge   (default): Microsoft Edge TTS — FREE, neural voices, no API key
+  - gtts             : Google Translate TTS — FREE, lower quality
+  - google           : Google Cloud TTS Neural2 — free up to 1M chars/month (needs billing)
+  - openai           : OpenAI TTS-1 — ~$15/1M chars
 
-Provider is selected via TTS_PROVIDER env var.
+Provider is selected via TTS_PROVIDER env var (default: edge).
 """
+import asyncio
 import os
 import uuid
 from pathlib import Path
@@ -14,6 +16,12 @@ from src.utils.logger import get_logger
 from src.utils.retry import with_retry
 
 logger = get_logger("tts")
+
+# Edge TTS voices — neural quality, completely free
+_EDGE_VOICES = {
+    "es": "es-ES-AlvaroNeural",   # Spanish male, natural and clear
+    "en": "en-US-GuyNeural",
+}
 
 _GOOGLE_VOICES = {
     "es": {"language_code": "es-ES", "name": "es-ES-Neural2-B"},
@@ -25,7 +33,6 @@ _OPENAI_VOICES = {
     "en": "onyx",
 }
 
-# gTTS language codes
 _GTTS_LANG = {
     "es": "es",
     "en": "en",
@@ -38,30 +45,44 @@ def synthesize(text: str, language: str, output_dir: str) -> str:
     Converts text to an MP3 audio file.
     Returns the path to the generated audio file.
     """
-    provider = os.getenv("TTS_PROVIDER", "gtts").lower()
+    provider = os.getenv("TTS_PROVIDER", "edge").lower()
     output_path = str(Path(output_dir) / f"audio_{uuid.uuid4().hex[:8]}.mp3")
 
     logger.info("Synthesizing %d characters with provider '%s'…", len(text), provider)
 
-    if provider == "gtts":
+    if provider == "edge":
+        _synthesize_edge(text, language, output_path)
+    elif provider == "gtts":
         _synthesize_gtts(text, language, output_path)
     elif provider == "google":
         _synthesize_google(text, language, output_path)
     elif provider == "openai":
         _synthesize_openai(text, language, output_path)
     else:
-        raise ValueError(f"Unknown TTS_PROVIDER: '{provider}'. Use 'gtts', 'google', or 'openai'.")
+        raise ValueError(f"Unknown TTS_PROVIDER: '{provider}'. Use 'edge', 'gtts', 'google', or 'openai'.")
 
     size_kb = Path(output_path).stat().st_size // 1024
     logger.info("Audio saved: %s (%d KB)", output_path, size_kb)
     return output_path
 
 
+def _synthesize_edge(text: str, language: str, output_path: str) -> None:
+    """
+    Microsoft Edge TTS — free neural voices, no API key needed.
+    Quality is significantly better than gTTS.
+    """
+    import edge_tts
+
+    voice = _EDGE_VOICES.get(language.lower()[:2], _EDGE_VOICES["es"])
+
+    async def _run():
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(output_path)
+
+    asyncio.run(_run())
+
+
 def _synthesize_gtts(text: str, language: str, output_path: str) -> None:
-    """
-    Uses gTTS (Google Translate TTS). No API key or billing required.
-    Chunks text to avoid hitting the informal request size limits.
-    """
     from gtts import gTTS
     import io
 
