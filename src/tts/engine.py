@@ -17,9 +17,8 @@ from src.utils.retry import with_retry
 
 logger = get_logger("tts")
 
-# Edge TTS voices — neural quality, completely free
 _EDGE_VOICES = {
-    "es": "es-ES-AlvaroNeural",   # Spanish male, natural and clear
+    "es": "es-ES-AlvaroNeural",
     "en": "en-US-GuyNeural",
 }
 
@@ -41,17 +40,14 @@ _GTTS_LANG = {
 
 @with_retry(max_attempts=3, base_delay=2.0)
 def synthesize(text: str, language: str, output_dir: str) -> str:
-    """
-    Converts text to an MP3 audio file.
-    Returns the path to the generated audio file.
-    """
+    """Converts text to MP3. Returns path to audio file."""
     provider = os.getenv("TTS_PROVIDER", "edge").lower()
     output_path = str(Path(output_dir) / f"audio_{uuid.uuid4().hex[:8]}.mp3")
 
     logger.info("Synthesizing %d characters with provider '%s'…", len(text), provider)
 
     if provider == "edge":
-        _synthesize_edge(text, language, output_path)
+        asyncio.run(_edge_stream(text, language, output_path))
     elif provider == "gtts":
         _synthesize_gtts(text, language, output_path)
     elif provider == "google":
@@ -66,20 +62,49 @@ def synthesize(text: str, language: str, output_dir: str) -> str:
     return output_path
 
 
-def _synthesize_edge(text: str, language: str, output_path: str) -> None:
+def synthesize_with_timing(text: str, language: str, output_dir: str):
     """
-    Microsoft Edge TTS — free neural voices, no API key needed.
-    Quality is significantly better than gTTS.
+    Like synthesize() but also returns word-level timing data for captions.
+    Returns (audio_path, word_timings) where word_timings is a list of
+    {"word": str, "start": float, "duration": float} dicts (seconds).
+    Only edge provider supports timings; others return empty list.
     """
+    provider = os.getenv("TTS_PROVIDER", "edge").lower()
+    if provider != "edge":
+        return synthesize(text, language, output_dir), []
+
+    output_path = str(Path(output_dir) / f"audio_{uuid.uuid4().hex[:8]}.mp3")
+    timings = asyncio.run(_edge_stream_with_timing(text, language, output_path))
+
+    size_kb = Path(output_path).stat().st_size // 1024
+    logger.info("Audio with %d word timings: %s (%d KB)", len(timings), output_path, size_kb)
+    return output_path, timings
+
+
+async def _edge_stream(text: str, language: str, output_path: str) -> None:
     import edge_tts
-
     voice = _EDGE_VOICES.get(language.lower()[:2], _EDGE_VOICES["es"])
+    communicate = edge_tts.Communicate(text, voice)
+    await communicate.save(output_path)
 
-    async def _run():
-        communicate = edge_tts.Communicate(text, voice)
-        await communicate.save(output_path)
 
-    asyncio.run(_run())
+async def _edge_stream_with_timing(text: str, language: str, output_path: str) -> list:
+    import edge_tts
+    voice = _EDGE_VOICES.get(language.lower()[:2], _EDGE_VOICES["es"])
+    communicate = edge_tts.Communicate(text, voice)
+    timings = []
+
+    with open(output_path, "wb") as f:
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                f.write(chunk["data"])
+            elif chunk["type"] == "WordBoundary":
+                timings.append({
+                    "word": chunk["text"],
+                    "start": chunk["offset"] / 10_000_000,
+                    "duration": chunk["duration"] / 10_000_000,
+                })
+    return timings
 
 
 def _synthesize_gtts(text: str, language: str, output_path: str) -> None:

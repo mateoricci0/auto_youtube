@@ -36,7 +36,7 @@ RESPONDE ÚNICAMENTE con JSON válido. Sin texto fuera del JSON. Sin markdown. S
   "description": "Descripción completa de 200-300 palabras para YouTube con keywords naturalmente integradas. Incluye timestamps de capítulos al final en formato\\n00:00 - Introducción\\nMM:SS - Sección...",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5", "tag6", "tag7", "tag8", "tag9", "tag10"],
   "thumbnail_text": "TEXTO IMPACTANTE MÁXIMO 5 PALABRAS EN MAYÚSCULAS",
-  "shorts_hook": "Texto de gancho para el Short de 55 segundos. Debe ser la parte más impactante del vídeo, condensada en 100-120 palabras máximo.",
+  "shorts_hook": "Guión COMPLETO del Short de 55 segundos. REGLAS ESTRICTAS: (1) Empieza con una pregunta impactante o dato que nadie esperaba — en los primeros 3 segundos. (2) Ritmo rápido, frases cortas, máximo 10 palabras por frase. (3) Sin relleno, cada frase aporta algo. (4) Termina con '¿Lo sabías? Suscríbete a TechHoy'. Máximo 130 palabras.",
   "pexels_keywords": ["keyword para buscar video de fondo 1", "keyword 2", "keyword 3"],
   "chapters": [
     {{

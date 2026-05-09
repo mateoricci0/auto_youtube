@@ -136,9 +136,15 @@ def compose_video(
     # --- Build base video track ---
     if clip_paths:
         loaded_clips = []
-        for path in clip_paths:
+        directions = ["in", "out"]
+        for i, path in enumerate(clip_paths):
             try:
                 clip = VideoFileClip(path).resize((TARGET_W, TARGET_H))
+                # Ken Burns: alternate zoom-in / zoom-out per clip
+                zoom_start = 1.0 if directions[i % 2] == "in" else 1.06
+                zoom_end = 1.06 if directions[i % 2] == "in" else 1.0
+                dur = max(clip.duration, 0.1)
+                clip = clip.resize(lambda t, zs=zoom_start, ze=zoom_end, d=dur: zs + (ze - zs) * (t / d))
                 loaded_clips.append(clip)
                 logger.debug("Loaded clip: %s (%.1fs)", Path(path).name, clip.duration)
             except Exception as exc:
