@@ -112,7 +112,10 @@ def run_pipeline(channel_config: Dict) -> Dict:
             msg += f"\n▶️ Short: {short_result['url']}"
         telegram.notify_success(channel_name, result["title"], result["url"])
         if short_result:
-            telegram.send(f"📱 Short publicado: {short_result['url']}")
+            telegram.send(
+                subject=f"📱 TechHoy — Short publicado",
+                body=f"Short: {short_result['url']}",
+            )
 
         logger.info("Pipeline complete! %s", result["url"])
         return {"status": "success", **result, "short": short_result}
