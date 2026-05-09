@@ -133,7 +133,10 @@ def upload_video(
     logger.info("Upload complete: %s", url)
 
     if Path(thumbnail_path).exists():
-        _set_thumbnail(youtube, video_id, thumbnail_path)
+        try:
+            _set_thumbnail(youtube, video_id, thumbnail_path)
+        except Exception as exc:
+            logger.warning("Thumbnail upload skipped (channel may need verification): %s", exc)
 
     return {"video_id": video_id, "url": url, "title": title}
 
@@ -167,7 +170,6 @@ def _resumable_upload(youtube, video_path: str, body: Dict) -> str:
     return response["id"]
 
 
-@with_retry(max_attempts=3, base_delay=2.0, exceptions=(HttpError,))
 def _set_thumbnail(youtube, video_id: str, thumbnail_path: str) -> None:
     """Sets a custom thumbnail. File must be < 2MB."""
     size_kb = Path(thumbnail_path).stat().st_size // 1024
