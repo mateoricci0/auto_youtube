@@ -7,7 +7,7 @@ gTTS==2.5.1
 moviepy==1.0.3
 imageio==2.33.1
 imageio-ffmpeg==0.4.9
-Pillow==10.2.0
+Pillow>=11.0.0
 requests==2.31.0
 python-dotenv==1.0.1
 APScheduler==3.10.4
