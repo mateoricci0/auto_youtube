@@ -11,6 +11,10 @@ from typing import Dict, List, Optional
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
+# MoviePy 1.0.3 references PIL.Image.ANTIALIAS which was removed in Pillow 10+
+if not hasattr(Image, "ANTIALIAS"):
+    Image.ANTIALIAS = Image.LANCZOS
+
 from src.utils.logger import get_logger
 
 logger = get_logger("shorts")
